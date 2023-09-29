@@ -1,0 +1,14 @@
+Dependencies
+  Dependency(io.get-coursier:sbt-launcher-scripted-plugin;sbtVersion=1.0;scalaVersion=2.12, 1.2.22, Configuration(), Set((Organization(org.scala-sbt),ModuleName(*))), Publication(, Type(), Extension(), Classifier()), false, true)
+  Dependency(io.get-coursier:sbt-lm-coursier;sbtVersion=1.0;scalaVersion=2.12, 2.0.0-RC6-8, Configuration(), Set((Organization(org.scala-sbt),ModuleName(*))), Publication(, Type(), Extension(), Classifier()), false, true)
+  Dependency(org.scala-lang:scala-compiler, 2.12.12, Configuration(), Set(), Publication(, Type(), Extension(), Classifier()), false, true)
+  Dependency(org.scala-lang:scala-library, 2.12.12, Configuration(), Set(), Publication(, Type(), Extension(), Classifier()), false, true)
+  Dependency(org.scala-sbt:sbt, 1.9.6, Configuration(), Set((Organization(io.get-coursier),ModuleName(lm-coursier-shaded_2.12))), Publication(, Type(), Extension(), Classifier()), false, true)
+
+Force versions
+  org.scala-lang:scala-compiler:2.12.12
+  org.scala-lang:scala-library:2.12.12
+  org.scala-lang:scala-reflect:2.12.12
+  org.scala-lang:scalap:2.12.12
+
+No classifiers

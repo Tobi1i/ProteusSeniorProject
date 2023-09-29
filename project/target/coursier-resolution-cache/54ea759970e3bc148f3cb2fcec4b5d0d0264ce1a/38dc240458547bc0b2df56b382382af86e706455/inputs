@@ -1,0 +1,11 @@
+Dependencies
+  Dependency(org.scala-lang:scala-compiler, 2.12.12, Configuration(), Set(), Publication(, Type(), Extension(), Classifier()), false, true)
+  Dependency(org.scala-lang:scala-library, 2.12.12, Configuration(), Set(), Publication(, Type(), Extension(), Classifier()), false, true)
+
+Force versions
+  org.scala-lang:scala-compiler:2.12.12
+  org.scala-lang:scala-library:2.12.12
+  org.scala-lang:scala-reflect:2.12.12
+  org.scala-lang:scalap:2.12.12
+
+No classifiers

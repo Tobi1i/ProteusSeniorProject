@@ -1,0 +1,7 @@
+Dependencies
+  Dependency(org.scala-sbt:test-interface, 1.0, Configuration(), Set(), Publication(, Type(), Extension(), Classifier()), false, true)
+
+Force versions
+
+
+No classifiers
