@@ -1,0 +1,158 @@
+/* 
+Proteus
+
+What is Proteus? 
+Proteus is a programming language that hosts actor-based hierarchical state machines as a first class feature. 
+
+Grammar: 
+Program: DefEvent* DefGlobalConst* DefFunc* DefActor+
+DefActor: 'actor' ActorName '{' ActorItem* '}'
+ActorItem: DefHSM | DefActorOn | DefMember | DefMethod
+DefActorOn: 'on' EventMatch OnBlock
+DefHSM:   'statemachine' '{' StateItem* '}'
+DefState: 'state' StateName '{' StateItem* '}'
+StateItem: DefOn | DefEntry | DefExit | DefMember | DefMethod | DefState | InitialState
+DefOn: 'on' EventMatch OnBody
+EventMatch: EventName '{' [VarName (',' VarName)*] '}'
+OnBody: GoStmt | OnBlock
+OnBlock: Block
+DefEntry: 'entry' '{' Block '}'
+DefExit: 'exit' '{' Block '}'
+DefMember: Type VarName '=' ConstExpr ';'
+DefMethod: 'func' FuncName FormalFuncArgs ['->' Type] Block
+InitialState: 'initial' StateName ';'
+Block: '{' Stmt* '}'
+Stmt: IfStmt | WhileStmt | DecStmt | AssignStmt | ExitStmt | ApplyStmt | SendStmt | PrintStmt | PrintlnStmt
+DefEvent: 'event' EventName '{' [Type (',' Type )*] }' ';'
+DefFunc: 'func' FuncName FormalFuncArgs ['->' Type] Block
+DefGlobalConst: 'const' Type VarName '=' ConstExpr ';'
+ExitStmt: 'exit' '(' NUMBER ')' ';'
+ReturnStmt: 'return' Expr ';'
+DecStmt: Type VarName '=' Expr ';'
+AssignStmt: VarName '=' Expr ';'
+ApplyStmt: ApplyExpr ';'
+SendStmt : HSMName '!' EventName ExprListCurly ';'
+PrintStmt : 'print' ExprListParen ';'
+PrintlnStmt : 'println' ExprListParen ';'
+FormalFuncArgs : '(' [Type VarName (',' Type VarName)*] ')'
+ExprListParen :'(' [Expr (',' Expr)*] ')'
+ExprListCurly :'{' [Expr (',' Expr)*] '}'
+Type: 'int' | 'string' | 'bool' | 'actorname' | 'statename' | 'eventname'
+GoStmt: JustGoStmt | GoIfStmt
+JustGoStmt: 'go' StateName Block
+GoIfStmt: 'goif' ParenExpr StateName Block ['else' (GoIfStmt | ElseGoStmt)]
+ElseGoStmt: 'go' StateName Block
+IfStmt: 'if' ParenExpr Block ['else' (IfStmt | Block)] 
+WhileStmt: 'while' ParenExpr Block 
+ParenExpr: '(' Expr ')'
+ConstExpr: IntExpr | BoolExpr | StrExpr
+Expr: ValExpr | BinOpExpr | ApplyExpr
+BinOpExpr: ValExpr BinOp Expr 
+BinOp: '*' | '/' | '%' | '+' | '-' | '<<' | '>>' | '<' | '>' | '<=' | '>=' | '==' | '!=' | '^' | '&&' | '||' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '^='
+ApplyExpr: FuncName ExprListParen
+ValExpr: VarExpr | IntExpr | StrExpr | BoolExpr | ActorExpr | StateExpr | EventExpr | ParenExpr
+VarExpr: VarName
+IntExpr: NUMBER 
+StrExpr: STRING 
+BoolExpr: BOOL
+ActorExpr: 'actor' ActorName
+StateExpr: 'state' StateName
+EventExpr: 'event' EventName
+StateName: NAME
+ActorName: NAME
+FuncName: NAME
+VarName: NAME
+EventName: NAME
+
+*/ 
+
+
+Example of Proteus:
+
+First example:
+
+event CLOCK{int};
+
+actor Man {
+    statemachine {
+        initial Awake;
+
+        int wake_count = 0;
+
+        state Awake {
+            on CLOCK{hour} {
+                goif (hour == 22) Asleep {}
+            }
+        }
+
+        state Asleep {
+            on CLOCK{hour} {
+                goif (hour == 7) Awake {
+                    wake_count = wake_count + 1;
+                }
+            }
+        }
+    }
+}
+
+
+
+2nd example:
+
+
+actor life {
+    statemachine {
+        int age = 0;
+        int time = 10;
+    }
+}
+
+
+
+3rd Example:
+
+event TIRED {};
+event AWAKE {};
+
+actor life {
+    statemachine {
+        int time = 0;
+        int age = 0;
+
+        on AWAKE{} {
+            goif (time == 0) work {}
+        }
+
+        state work {
+            on TIRED{} {
+                goif (age == 100) end {}
+                else goif (time == 17) rest {
+                    time = time + 1;
+                }
+                else go work {
+                    time = time + 1;
+                }
+            }
+        }
+
+        state rest {
+            on AWAKE{} {
+                goif (time == 24) work {
+                    time = 0;
+                    age = age + 1;
+                }
+                else go rest {
+                    time = time + 1;
+                }
+            }
+        }
+
+        state end {
+            entry {
+                exit(0);
+            }
+        }
+    }
+}
+
+
