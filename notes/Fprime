@@ -1,0 +1,147 @@
+Fprime
+
+ Fprime has the following features:
+- Componenet architecture will well-defined interfaces.
+- C++ framework providing core capabilities like queues, threads, and operating-system abstraction
+
+
+In Fprime, a type definition defines a kind of data that you can pass between components or use commands and telemetry. 
+
+A Post is the endpoint of a connection between two compoenents. A post definition is like a function signature; it defines the type of the data carried on a port. 
+
+Components are the lifeblood of the F' deployment. 
+
+- when a component is active, it means it has its own thread. 
+
+Fprime about post:
+
+General Ports: These are user-defined ports for application-specific funcitons. There are two general posts: an output port and input port. The input port is asynchronous/synchronous. This means that invoking the port puts a message in queue. The handler runs later, on the thread of this component. 
+
+Special  ports: These are ports that have a special meaning in F Prime. There are ports for registering commands with the dispatcher, receiver commands, sending commmand reponses, emitting reports, emitting telemetry, and getting the time. 
+
+Commands: These are commands sent from the ground or from a sequencer and dispatched to this component. There is one command DO_MATH for doing a math operation. The command is asynchronous/synchronous. This means that when the command arrives, it goes on a queue and its handler is later run on the thread of this component
+
+Events: These are event reports that this component can emit. There are two event reports, one for receiving a command and one for receiving a result.
+
+Telemetry: These are channels that define telemetry points that the this component can emit. There are four telemetry channels: three for the arguments to the last command received and one for the last result received. A spacecraft produces digital data to represent engineering measurements, such as the temperatures of parts of the spacecraft, and science data, such as images from its cameras. 
+
+what does it mean when a component is queued? it means that it has a queue but no thread. Then work occurs when the thead of another component invokes the port of this component. 
+
+
+
+**The Origins of F' 
+F' is an embedded systems framework developed build to meet certain goals expanded upon below. It was created with goals particular well suited for small embedded missions that need reliable components and infrastructure provided by the frameowrk in order to minimize development cost, schedule, or effort. 
+
+build to meet the following goals:
+
+- capture the reusability of embedded projects into a Framework
+- Ease the separating and reassembling of shareable system components.
+- Isolate components for ease of testing
+- Adapt easily to new contexts
+- Port to new architecture and platforms
+- scale and configure to meet new use cases
+- Perfom well in resource-constrained context
+
+*nIntroduction to Space Systems:
+- F' can be used to model any embedded system, it has its origins in the star.
+- what is a space system? It is an embedded system in space. Typically these systems compose the complete control and operation of a spacecraft to accomplish some mission. 
+- F' decomposes its projects into discrete Components that each manage one part of the system. e.g a Radio Component may control the radio hardware to facilitate communication. 
+- Components are connected to another via Ports. 
+- Ports allow communication between Components
+- The complete graph or network of Components connected via Ports is called a topology, which encapsulates the full system. 
+- F' was build to support Command and Data handling of these space systems as well as instruments running as part of these systems. 
+- So F' out of the box is designed to handle commands sent from the ground, and respond with telemetry to the ground. 
+- In F' this Telemetry is broken into Events representing the History of actions taken by the system, and channels representing the current state of the system broken into named channels that each contain a portion of the state. e.g an Event might be "Established Communications" and a Channel might be "Current Temperature: 3C "
+- All F' projects are composed of Components, Ports, and Topologies. 
+
+
+* The Organization of F' Deployments:
+- The core F' software framework allows project s to be decomposed into a set of Components that are interconnected by Ports. 
+- Each Component represents one discrete piece of the system. e.g. the Command Dispatcher is a frameowork component used to dispatch incoming commands to be handled by another component in the system. Its job is to recieve a ground communication and translate that into an action, dispatch the action to another component, and await the the completion of this action. 
+- It emits Events to signify when the action is dispatched, and when it has been completed. It has Channels counting the number of commmands dispatched. 
+- Components are the key to system modularization and each component has a set of Ports to communicate from.
+- Each Component may define a set of Commnads it may handle, and each Component may define a set of Events it can report as well as set of Channels that it will send out. 
+
+
+* F' On Baremetal and Multi-core Systems: 
+- A baremetal system is a system that does not run an Operating System to support the F' software. Thus, the F' software must provide for basic services such as filesystems, thread schedulers, etc. 
+
+_The joy of Passive Components:
+- F' systems shoudl avoid using Active Components at all costs because these components require quasis-asynchronous execution contexts in which to run. i.e. they need thread such that they can execute in "parallel" with each other. 
+- The system can defined entirely by Passive Components then implicitly every port invocation would be synchronous and the execution wuld be entirely delegated to every component. 
+
+
+* F' on Projects: 
+- A project may consist of one or more related deployments. Each deployment is one instance of F' software. Projedcts are used to organize F' code that is closely related. They define at least one deployment, but may define multiple deployments. 
+- Reasons to why a project may contain multiple deployments? 
+a) A project consists of multiple spacecraft/electronic platforms/CPUs/systems. F' can be used om multiple nodes in such systems. 
+b) A project has test deployments, mocked-deployments, or other deployments that allow for specific testing setups.
+
+F' on Deployments: 
+- Deployments are tied to builds; for each of the code there is a single deployment. These deployments may share components and ports from within the project, but the topology and the individual build of F' are typically unique. 
+- Deployments may define custom components and ports that are only used in that specific deployment. May also inherit other components, like those defined by the F' framework. 
+- A Topology is a specific set of interconnnected components that represent a system. Topologies contain instatiations of each component, and list connections between the ports of the components. 
+- Topology represents the design of the system including ports and components needed for the use of F'.
+
+***Core Constructs: Ports, Components, and topologies:
+
+** Ports: F' Communication
+- Ports are the point of interconnection between Components in the software framework and excapsulate typed interfaces in the architecture. This means that each port definition is of a specific type (e.g CommandDispatchPort) and can connect Components defining ports of the same type. 
+- When one Component uses a port to communicate with another Component this action is called a port Invocation. These ports are known as 'data_types' because they represent the data being conveyed across the port
+- Port supports passing arguments across the port's connection in order to pass data to the receiving Component of an invocation. 
+- Some ports may also return data from the receiving Component to the invoking Component. 
+- A port may specify zero or more arguments of any F' data type or primitive(int, float, U8, etc.). Also, pointers and references are allowed as arguments to the port as well, but care should taken to ensure correct memory management as the ownership of the underlying memory is effectively shared when the port is invoked. 
+- the port's type is synonymous with the port invocations' "data_type" when used on a Component.
+- When using a port the use has to specify the directionality. As a port can represent an input or an output. This direction pertains to the diretion of invocation from one originating Component to another and not necessarily the direction of data flow i.e. output ports (invoking our to another Component) can in some cases retrieve data. 
+- As well multiple output ports can be connected to a single input port implying that at Component responding to a port invocation could be responding to one of a set of invoking Componets. Although we have to be careful as "a single output port can be connnected to only one input port at a time."
+- Synchronous/asynchronous nature of the port. A synchonous port operates like a function call running in the execution context of the invoking Component. The synchronous/asynchronous nature of the port along with the directionality is comvbined in the "kind" when used by the Component.
+- Also a port can be defined as "guarded", which means invocations into the port are limited to a single invocation at a time by a component-wide mutex. Which this is also combined into the "kind" attribute. 
+- One must be careful to distinguish between the port design and the port instantiation. A Port's design is generic specifying its type (name, arguments transported, etc.) and when used in a Component is designated as the port's "data_type". 
+- The design is careful not to specify its usgae by a component (directionality, synchronous/asynchronous nature, guarded, and not guarded). This is specified as part of the instantiation of a port when used by a component. 
+- This instantiation is specifically part of the Component's design and not the port's design is known as the "kind" of port's instantiation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
